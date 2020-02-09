@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Pokemon List</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body >
+  <div class="container" id="app">
+
+    <!-- This is form page to add a new pokemon -->
+    <form class="my-4" @submit.prevent="addPokemon">
+      <div class="form-group">
+        <label for="name">Pokemon Name</label>
+        <input type="text" class="form-control" name="name" v-model="pokemon.name">
+      </div>
+      <div class="form-group">
+        <label for="attributes">Pokemon Attributes</label>
+        <input type="text" class="form-control" name="attributes" v-model="pokemon.attributes">
+      </div>
+      <div class="form-group">
+        <label for="imageURL">Pokemon Image URL</label>
+        <input type="text" class="form-control" name="imageURL" v-model="pokemon.imageURL">
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <!-- This is pokemon list -->
+    <h1>Pokemon Collection</h1>
+    <div class="row my-4">
+
+      <!-- Each of pokemon will have one of this card -->
+      <div class="col-4 mb-4" v-for="pokemon in pokemons">
+        <div class="card">
+          <img :src="pokemon.img" class="card-img-top" style="height: 200px; object-fit: cover; object-position: 0 30%;" >
+          <div class="card-body">
+            <h5 class="card-title">{{pokemon.name}}</h5>
+            <p class="card-text">Attributes: {{pokemon.element}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>
+    var baseURL = "http://localhost:3000/"
+    var app = new Vue({
+      el: '#app',
+      data: {
+        message: 'Hello Vue!',
+        pokemons: [],
+        pokemon: {
+          name: '',
+          attributes: '',
+          imageURL: ''
+        }
+      },
+      methods: {
+        fetchPokemon () {
+          axios({
+            method: "GET",
+            url: baseURL + "pokemons"
+          })
+            .then(({ data }) => {
+              this.pokemons = data
+            })
+            .catch(err => {
+              console.log(err)
+            })
+        },
+        addPokemon () {
+          axios({
+            method: "POST",
+            url: baseURL + "pokemons",
+            data: {
+              name: this.pokemon.name,
+              element: this.pokemon.attributes,
+              img: this.pokemon.imageURL
+            }
+          })
+            .then(({ data }) => {
+              this.fetchPokemon()
+              this.pokemon = {
+                name: '',
+                attributes: '',
+                imageURL: ''
+              }
+            })
+            .catch(err => {
+              console.log(err)
+            })
+        }
+      },
+      created () {
+        this.fetchPokemon()
+      }
+    })
+  </script>
+</body >
+</html>
